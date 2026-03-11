@@ -11,8 +11,8 @@ parser.add_argument('-g', '--glob', help='pattern to match for subjects', defaul
 parser.add_argument('-s', '--stats', help='stats file to parse, eg lh.aparc.stats', required=True)
 parser.add_argument('-m', '--measure', help='measurement to extract, eg Volume_mm3, ThickAvg, SurfArea', required=False)
 parser.add_argument('-o', '--output', help='output file name', required=True)
-parser.add_argument('--prefix', help='prefix for stats header names', default=None)
-parser.add_argument('--postfix', help='postfix for stats header names', default=None)
+parser.add_argument('--prefix', help='prefix for stats header names', default='')
+parser.add_argument('--postfix', help='postfix for stats header names', default='')
 
 args=parser.parse_args()
 input_type = args.stats
@@ -81,10 +81,8 @@ for stats_file in filelist:
 
 # convert list of records to dataframe and save to output
 df = pd.DataFrame.from_records(records)
-if (prefix or postfix):
-    pre = f'{prefix}_' if prefix else ''
-    post = f'_{postfix}' if postfix else ''
-    df.rename(columns=dict(zip(cols_to_rename, [f'{pre}{x}{post}' for x in cols_to_rename])), inplace=True)
+if cols_to_rename:
+    df.rename(columns=dict(zip(cols_to_rename, [f'{prefix}{x}{postfix}' for x in cols_to_rename])), inplace=True)
 df.sort_values(by='subject', inplace=True)
 df.to_csv(output_file, index=False)
 print('finished')
